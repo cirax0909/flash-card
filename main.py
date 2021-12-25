@@ -9,9 +9,9 @@ try:
 except FileNotFoundError:
     data = pandas.read_csv("data/french_words.csv")
     display_data = data.to_dict(orient="records")
-finally:
+else:
     word = {}
-
+finally:
     def create_card():
         global word, flip_timer
         window.after_cancel(flip_timer)
@@ -19,18 +19,23 @@ finally:
         canvas.itemconfig(image, image=front_image)
         canvas.itemconfig(title, text="French", fill="black")
         canvas.itemconfig(learning_word, text=word['French'], fill='black')
-        display_data.remove(word)
         flip_timer = window.after(3000, change_bg)
 
 
     def change_bg():
-        global word, display_data
+        global word
         # To change the image:
         canvas.itemconfig(image, image=back_image)
         canvas.itemconfig(title, text="English", fill="white")
         canvas.itemconfig(learning_word, text=word['English'], fill="white")
+
+    def saving():
+        global word
+        display_data.remove(word)
         to_learn = pandas.DataFrame(display_data)
+        print(len(to_learn))
         to_learn.to_csv("data/words_to_learn.csv", index=False)
+        create_card()
 
 
 #-----------------GUI---------------
@@ -54,11 +59,11 @@ canvas.grid(column=0, row=0, columnspan=2)
 
 #Right button
 right_image = PhotoImage(file="images/right.png")
-right_button = Button(image=right_image, highlightthickness=0, command=create_card)
+right_button = Button(image=right_image, highlightthickness=0, command=saving)
 right_button.grid(column=1, row=1)
 #Right button
 wrong_image = PhotoImage(file="images/wrong.png")
-wrong_button = Button(image=wrong_image, highlightthickness=0, command=change_bg)
+wrong_button = Button(image=wrong_image, highlightthickness=0, command=create_card)
 wrong_button.grid(column=0, row=1)
 
 create_card()
